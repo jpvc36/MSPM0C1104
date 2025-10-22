@@ -1,4 +1,6 @@
 #!/usr/bin/node
+// npm install socket.io-client@2
+// npm install unix-dgram@2
 const io = require('socket.io-client');
 const dgram = require('unix-dgram');
 const socketPath = '/tmp/volumio.sock';
