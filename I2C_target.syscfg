@@ -1,0 +1,144 @@
+/**
+ * These arguments were used when this file was generated. They will be automatically applied on subsequent loads
+ * via the GUI or CLI. Run CLI with '--help' for additional information on how to override these arguments.
+ * @cliArgs --device "MSPS003FX" --part "Default" --package "TSSOP-20(PW20)" --product "mspm0_sdk@2.06.00.06"
+ * @v2CliArgs --device "MSPM0C1103" --package "TSSOP-20(PW20)" --variant "MSPS003F3" --product "mspm0_sdk@2.06.00.06"
+ * @versions {"tool":"1.25.0+4268"}
+ */
+
+/**
+ * Import the modules used in this configuration.
+ */
+const ADC12         = scripting.addModule("/ti/driverlib/ADC12", {}, false);
+const ADC121        = ADC12.addInstance();
+const Board         = scripting.addModule("/ti/driverlib/Board");
+const CAPTURE       = scripting.addModule("/ti/driverlib/CAPTURE", {}, false);
+const CAPTURE1      = CAPTURE.addInstance();
+const GPIO          = scripting.addModule("/ti/driverlib/GPIO", {}, false);
+const GPIO1         = GPIO.addInstance();
+const GPIO2         = GPIO.addInstance();
+const I2C           = scripting.addModule("/ti/driverlib/I2C", {}, false);
+const I2C1          = I2C.addInstance();
+const QEI           = scripting.addModule("/ti/driverlib/QEI", {}, false);
+const QEI1          = QEI.addInstance();
+const SYSCTL        = scripting.addModule("/ti/driverlib/SYSCTL");
+const TIMER         = scripting.addModule("/ti/driverlib/TIMER", {}, false);
+const TIMER1        = TIMER.addInstance();
+const VREF          = scripting.addModule("/ti/driverlib/VREF");
+const ProjectConfig = scripting.addModule("/ti/project_config/ProjectConfig");
+
+/**
+ * Write custom configuration values to the imported modules.
+ */
+const gate6  = system.clockTree["MFCLKGATE"];
+gate6.enable = true;
+
+const oscillator2           = system.clockTree["SYSOSC"];
+oscillator2.frequencySelect = 4;
+
+ADC121.$name               = "ADC12_0";
+ADC121.sampClkDiv          = "DL_ADC12_CLOCK_DIVIDE_4";
+ADC121.adcMem0chansel      = "DL_ADC12_INPUT_CHAN_5";
+ADC121.peripheral.$assign  = "ADC0";
+ADC121.adcPin5Config.$name = "ti_driverlib_gpio_GPIOPinGeneric5";
+
+Board.configureUnused             = true;
+Board.peripheral.$assign          = "DEBUGSS";
+Board.peripheral.swclkPin.$assign = "PA20";
+Board.peripheral.swdioPin.$assign = "PA19";
+
+CAPTURE1.$name                          = "CAPTURE_0";
+CAPTURE1.timerClkDiv                    = 8;
+CAPTURE1.captEdgeDetection              = "FALLING";
+CAPTURE1.timerClkSrc                    = "MFCLK";
+CAPTURE1.timerPeriod                    = "131.072ms";
+CAPTURE1.peripheral.$assign             = "TIMA0";
+CAPTURE1.peripheral.ccp0Pin.$assign     = "PA2";
+CAPTURE1.ccp0PinConfig.$name            = "ti_driverlib_gpio_GPIOPinGeneric4";
+CAPTURE1.ccp0PinConfig.enableConfig     = true;
+CAPTURE1.ccp0PinConfig.internalResistor = "PULL_UP";
+
+GPIO1.$name                              = "GPIO_LEDS";
+GPIO1.associatedPins.create(3);
+GPIO1.associatedPins[0].$name            = "USER_LED_1";
+GPIO1.associatedPins[0].initialValue     = "SET";
+GPIO1.associatedPins[0].assignedPin      = "18";
+GPIO1.associatedPins[1].$name            = "IRQ";
+GPIO1.associatedPins[1].direction        = "INPUT";
+GPIO1.associatedPins[1].internalResistor = "PULL_UP";
+GPIO1.associatedPins[1].assignedPin      = "25";
+GPIO1.associatedPins[2].$name            = "BTN_GND";
+GPIO1.associatedPins[2].assignedPin      = "6";
+
+GPIO2.$name                              = "GPIO_BUTTONS";
+GPIO2.associatedPins[0].$name            = "ROTARY_SWITCH";
+GPIO2.associatedPins[0].direction        = "INPUT";
+GPIO2.associatedPins[0].interruptEn      = true;
+GPIO2.associatedPins[0].polarity         = "FALL";
+GPIO2.associatedPins[0].ioStructure      = "SD";
+GPIO2.associatedPins[0].internalResistor = "PULL_UP";
+GPIO2.associatedPins[0].inputFilter      = "8_CYCLES";
+GPIO2.associatedPins[0].assignedPin      = "11";
+
+I2C1.$name                             = "I2C";
+I2C1.basicControllerBusSpeed           = 400000;
+I2C1.advControllerTXFIFOTRIG           = "BYTES_1";
+I2C1.advTargetTXFIFOTRIG               = "BYTES_1";
+I2C1.basicEnableTarget                 = true;
+I2C1.advAnalogGlitchFilter             = "DISABLED";
+I2C1.advTargetTXEmptyEn                = true;
+I2C1.intTarget                         = ["RXFIFO_TRIGGER","START","STOP","TXFIFO_TRIGGER"];
+I2C1.basicTargetAddress                = 0x77;
+I2C1.peripheral.$assign                = "I2C0";
+I2C1.peripheral.sdaPin.$assign         = "PA0";
+I2C1.peripheral.sclPin.$assign         = "PA1";
+I2C1.sdaPinConfig.hideOutputInversion  = scripting.forceWrite(false);
+I2C1.sdaPinConfig.onlyInternalResistor = scripting.forceWrite(false);
+I2C1.sdaPinConfig.passedPeripheralType = scripting.forceWrite("Digital");
+I2C1.sdaPinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric0";
+I2C1.sclPinConfig.hideOutputInversion  = scripting.forceWrite(false);
+I2C1.sclPinConfig.onlyInternalResistor = scripting.forceWrite(false);
+I2C1.sclPinConfig.passedPeripheralType = scripting.forceWrite("Digital");
+I2C1.sclPinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric1";
+
+QEI1.$name                          = "QEI_0";
+QEI1.timerStartTimer                = true;
+QEI1.interrupts                     = ["CC0_DN_EVENT","CC0_UP_EVENT"];
+QEI1.peripheral.$assign             = "TIMG8";
+QEI1.peripheral.ccp0Pin.$assign     = "PA26";
+QEI1.peripheral.ccp1Pin.$assign     = "PA27";
+QEI1.ccp0PinConfig.$name            = "ti_driverlib_gpio_GPIOPinGeneric2";
+QEI1.ccp0PinConfig.enableConfig     = true;
+QEI1.ccp0PinConfig.internalResistor = "PULL_UP";
+QEI1.ccp1PinConfig.$name            = "ti_driverlib_gpio_GPIOPinGeneric3";
+QEI1.ccp1PinConfig.enableConfig     = true;
+QEI1.ccp1PinConfig.internalResistor = "PULL_UP";
+
+SYSCTL.powerPolicy    = "STOP0";
+SYSCTL.clockTreeEn    = true;
+SYSCTL.disableNRSTPin = true;
+
+TIMER1.$name              = "TIMER_0";
+TIMER1.interrupts         = ["ZERO"];
+TIMER1.timerMode          = "PERIODIC";
+TIMER1.timerClkDiv        = 4;
+TIMER1.timerClkPrescale   = 10;
+TIMER1.timerClkSrc        = "MFCLK";
+TIMER1.timerPeriod        = "50.2ms";
+TIMER1.peripheral.$assign = "TIMG14";
+
+VREF.basicIntVolt         = "DL_VREF_BUFCONFIG_OUTPUT_2_5V";
+VREF.advClockConfigEnable = true;
+
+ProjectConfig.migrationCondition = true;
+
+/**
+ * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
+ * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
+ * re-solve from scratch.
+ */
+ADC121.peripheral.adcPin5.$suggestSolution   = "PA28";
+GPIO1.associatedPins[0].pin.$suggestSolution = "PA18";
+GPIO1.associatedPins[1].pin.$suggestSolution = "PA25";
+GPIO1.associatedPins[2].pin.$suggestSolution = "PA6";
+GPIO2.associatedPins[0].pin.$suggestSolution = "PA11";
