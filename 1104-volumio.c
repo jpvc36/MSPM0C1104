@@ -20,6 +20,7 @@
 #include <cjson/cJSON.h>
 #include "keycode_lookup.h"
 #include <curl/curl.h>
+#include <syslog.h>
 
 #define MAX_KEYS 64
 #define MAX_BUTTONS 64
@@ -50,9 +51,9 @@ uint8_t press_count = 0;
 uint16_t track_number = 0;
 
 void send_volumio_command(const char *cmd) {
-    if (!cmd) {
+    if (!cmd || !*cmd) {
         // Nothing to send; avoid crash
-//        fprintf(stderr, "send_volumio_command: NULL cmd, ignoring\n");
+        fprintf(stderr, "send_volumio_command: NULL or empty command ignored\n");
         return;
     }
 
@@ -302,10 +303,12 @@ void process_ir(uint32_t scan_code) {
 
                 last_release_time = release_time;
 
-                // (Re)start the 500 ms timer  resets each press
-                struct itimerspec its = {0, 0, KEY_REPEAT_DELAY_MS / 1000,	// 1s
-                                        KEY_REPEAT_DELAY_MS % 1000 * 1e6};
-                restart_debounce_timer(its);
+                // (Re)start the 500 ms timer — resets each press
+                struct itimerspec its = {0};
+                its.it_value.tv_sec = KEY_REPEAT_DELAY_MS / 1000;
+                its.it_value.tv_nsec = (KEY_REPEAT_DELAY_MS % 1000) * 1000000;
+                if (timer_settime(debounce_timer, 0, &its, NULL) != 0)
+                    perror("timer_settime");
             }
         key = 0;						// reset
         }
@@ -395,7 +398,7 @@ int main(int argc, const char *argv[]) {
 
     printf("Waiting for falling edge on GPIO4...\n");
 
-    while (1) {
+    while (running) {
         ret = gpiod_line_event_wait(line, &(struct timespec){1, 0});
         if (ret < 0) {
             perror("Wait for event failed");
@@ -438,6 +441,7 @@ cleanup:
 
     curl_global_cleanup();
 
+    fprintf(stderr, "Clean exit from 1104-volumio.\n");
+
     return ret;
 }
-
