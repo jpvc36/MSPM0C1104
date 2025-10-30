@@ -89,7 +89,7 @@ void QEI_0_INST_IRQHandler(void)
     gData[0] |= DL_Timer_getQEIDirection(QEI_0_INST) ? 0xa0 : 0xc0;
     DL_GPIO_enableOutput(GPIO_LEDS_PORT, GPIO_LEDS_IRQ_PIN);
     DL_Timer_setCaptureCompareValue(CAPTURE_0_INST,
-        (DL_Timer_getTimerCount(CAPTURE_0_INST) - 60000),
+        (DL_Timer_getTimerCount(CAPTURE_0_INST) - 20000),                   // 40 ms timeout for Rotary
         DL_TIMER_CC_5_INDEX);
     DL_Timer_clearInterruptStatus(CAPTURE_0_INST, DL_TIMER_INTERRUPT_CC5_DN_EVENT);
     DL_Timer_enableInterrupt(CAPTURE_0_INST, DL_TIMER_INTERRUPT_CC5_DN_EVENT);
