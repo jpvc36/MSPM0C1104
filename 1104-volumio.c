@@ -1,5 +1,5 @@
 // sudo apt install -y libgpiod-dev libcjson-dev libcurl4-openssl-dev
-// gcc -o 1104-volumio 1104-volumio.c -lgpiod -lcurl -lcjson -lrt (-lrt for older system)
+// gcc -Wall -Wextra -O2 -o 1104-volumio 1104-volumio.c -lgpiod -lcurl -lcjson -lrt (-lrt for older system)
 // gpioinfo gpiochip0
 
 #define _POSIX_C_SOURCE 200809L
@@ -445,3 +445,4 @@ cleanup:
 
     return ret;
 }
+
