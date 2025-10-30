@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <syslog.h>
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
@@ -19,10 +20,11 @@
 
 #define SOCKET_PATH "/tmp/volumio.sock"
 #define FRAMEBUFFER "/dev/fb1"
+#define FB_WIDTH 96
 
 volatile sig_atomic_t running = 1;
 
-void handle_signal(int sig) {
+void handle_signal() {
     running = 0;
 }
 
@@ -36,7 +38,8 @@ int setup_unix_socket() {
     struct sockaddr_un addr = {0};
     addr.sun_family = AF_UNIX;
     strncpy(addr.sun_path, SOCKET_PATH, sizeof(addr.sun_path) - 1);
-    unlink(SOCKET_PATH);  // remove old
+    if (unlink(SOCKET_PATH) == -1 && errno != ENOENT)
+        perror("unlink");
 
     if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         perror("bind");
@@ -107,7 +110,6 @@ int write_fb(uint8_t num) {
         Start, Off, CD_48, power_48, hdtv_48, radio_48
     };
 
-    int width = 0, height = 0;
     int tens = num / 10;
     int ones = num % 10;
 
@@ -119,11 +121,12 @@ int write_fb(uint8_t num) {
         load_bmp_1bit(numbers[ones], bitmap,
             58, 24 - numbers[ones][22] / 2);
     else if (num >= 100 && num <= 110) load_bmp_1bit(numbers[num - 90],
-//        bitmap, 64 - numbers[num - 90][18] / 2, 24 - (numbers[num - 90][22] / 2));
         bitmap, 32, 24 - (numbers[num - 90][22] / 2));
     else {
         lseek(fb, 0, SEEK_SET);
-        write(fb, bitmap, buffer_size);
+        ssize_t w1 = write(fb, bitmap, buffer_size);
+        if (w1 != (ssize_t)buffer_size)
+            perror("write framebuffer (first)");
         close(fb);
         free(bitmap);
         if (num > 111) fprintf(stderr, "Error: number %d is out of range (0-111)\n", num);
@@ -135,7 +138,9 @@ int write_fb(uint8_t num) {
     // -----------------------------
 
     lseek(fb, 0, SEEK_SET);
-    write(fb, bitmap, buffer_size);
+    ssize_t w2 = write(fb, bitmap, buffer_size);
+    if (w2 != (ssize_t)buffer_size)
+        perror("write framebuffer (second)");
     close(fb);
     free(bitmap);
 
@@ -164,7 +169,7 @@ void handle_volumio_event(const char *json)
 
 }
 
-int main(int argc, const char *argv[])
+int main(void)
 {
     system("/usr/bin/dtoverlay ssd1306 inverted width=96 height=48");
 
@@ -211,7 +216,11 @@ while (running) {
 
     write_fb(111);
     close(sockfd);
-    system("/usr/bin/dtoverlay -r ssd1306");
-    printf("\nClean exit.\n");
+    if (system("/usr/bin/dtoverlay -r ssd1306") != 0)
+        fprintf(stderr, "Warning: dtoverlay -r ssd1306 failed\n");
+
+    fprintf(stderr, "Clean exit from volumio-display.\n");
+    fflush(stderr);
+
     return 0;
 }
