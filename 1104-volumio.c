@@ -295,12 +295,14 @@ void process_ir(uint32_t scan_code) {
                     press_count = 0;
                 }
                 track_number *= 10;
-                track_number += key - 512;			// remember which key caused it
+                if(press_count % 3) 
+                    track_number += key - 512;			// remember which key caused it
+                else track_number = key - 512;			// max 3 figures
 //                printf("press no %d, key %03d, %d ms, track %d\n", press_count + 1, key - 512, since_last_ms, track_number);
 
                 last_release_time = release_time;
 
-                // (Re)start the 500 ms timer — resets each press
+                // (Re)start the 500 ms timer Â— resets each press
                 struct itimerspec its = {0, 0, KEY_REPEAT_DELAY_MS / 1000,	// 1s
                                         KEY_REPEAT_DELAY_MS % 1000 * 1e6};
                 restart_debounce_timer(its);
@@ -438,3 +440,4 @@ cleanup:
 
     return ret;
 }
+
