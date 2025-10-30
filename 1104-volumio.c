@@ -295,8 +295,8 @@ void process_ir(uint32_t scan_code) {
                 else {
                     press_count = 0;
                 }
-                track_number *= 10;
-                if(press_count % 3) 
+                track_number *= 10;						// shift earlier keypress left for tracks up to 999
+                if(press_count % 3)						// start over when more than 3 short keypresses
                     track_number += key - 512;			// remember which key caused it
                 else track_number = key - 512;			// max 3 figures
 //                printf("press no %d, key %03d, %d ms, track %d\n", press_count + 1, key - 512, since_last_ms, track_number);
@@ -445,4 +445,5 @@ cleanup:
 
     return ret;
 }
+
 
