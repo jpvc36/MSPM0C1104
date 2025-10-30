@@ -1,0 +1,32 @@
+# sudo nano /etc/systemd/system/volumio-stack.service
+# npm install socket.io-client@2
+# npm install unix-dgram@2
+
+[Unit]
+Description=Volumio display, GPIO, and connect.js services
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Run as root
+User=root
+Group=root
+WorkingDirectory=/usr/local/bin
+
+# Launch all three processes; restart whole stack if any one fails
+ExecStart=/bin/sh -c '\
+    /usr/bin/node /usr/local/bin/connect.js & \
+    /usr/local/bin/volumio-display & \
+    /usr/local/bin/1104-volumio & \
+    wait'
+
+Restart=on-failure
+RestartSec=5
+
+# Ensure environment is predictable
+Environment=NODE_ENV=production
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+
+[Install]
+WantedBy=multi-user.target
