@@ -34,7 +34,7 @@ uint8_t i2c_data[8];			// Buffer to store 8 bytes
 typedef struct {
     uint32_t scancode;
     uint16_t keycode;
-    uint8_t *keycommand;
+    char *keycommand;
 } keymap_t;
 
 volatile sig_atomic_t running = 1;
@@ -79,7 +79,7 @@ void send_volumio_command(const char *cmd) {
     }
 }
 
-void debounce_timeout(union sigval sv) {
+void debounce_timeout() {
     // Example action: build a command and send
     char cmd[64];
     snprintf(cmd, sizeof(cmd), "play&N=%d", track_number - 1);
@@ -208,7 +208,7 @@ uint16_t lookup_code(uint32_t code, keymap_t *table, int count) {
     return -1;
 }
 
-uint8_t* lookup_command(uint32_t code, keymap_t *table, int count) {
+char* lookup_command(uint32_t code, keymap_t *table, int count) {
     for (int i = 0; i < count; i++) {
         if (table[i].scancode == code)
             return table[i].keycommand;
@@ -226,7 +226,7 @@ uint32_t get_buttoncode(uint8_t *buf) {
 
 void process_ir(uint32_t scan_code) {
     uint16_t keycode = lookup_code(scan_code, ir_table, ir_keycount);
-    uint8_t* keycommand = lookup_command(scan_code, ir_table, ir_keycount);
+    char* keycommand = lookup_command(scan_code, ir_table, ir_keycount);
     static struct timespec now, ts_next;
     clock_gettime(CLOCK_REALTIME, &now);
 
@@ -265,7 +265,7 @@ void process_ir(uint32_t scan_code) {
             system("/sbin/poweroff");
         }
     }
-    else if (keycode >= 0x200 && keycode <= 0x209 || scan_code == 0xffffff) {
+    else if ((keycode >= 0x200 && keycode <= 0x209) || scan_code == 0xffffff) {
         static uint16_t key;
         static struct timespec press_time, release_time, last_release_time;
  
@@ -346,7 +346,7 @@ int read_i2c_data(void) {
     return 0;
 }
 
-void handle_signal(int sig) {
+void handle_signal(void) {
     running = 0;
 }
 
@@ -423,7 +423,7 @@ int main(int argc, const char *argv[]) {
             } else if (buttoncode == 0x00000000) {
                 process_ir(scancode);
             } else {
-                uint8_t* buttoncommand = lookup_command(buttoncode, btn_table, btn_keycount);
+                char* buttoncommand = lookup_command(buttoncode, btn_table, btn_keycount);
                 if ((i2c_data[0] & 0x1f) == 1 && buttoncommand)
                     send_volumio_command((const char*)buttoncommand);
             }
