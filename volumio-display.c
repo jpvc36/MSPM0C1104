@@ -1,4 +1,4 @@
-// gcc volumio-display.c -o volumio-display -lcjson -lcurl
+// gcc -Wall -Wextra -O2 volumio-display.c -o volumio-display -lcjson -lcurl
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -224,3 +224,4 @@ while (running) {
 
     return 0;
 }
+
