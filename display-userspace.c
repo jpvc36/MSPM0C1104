@@ -23,12 +23,13 @@ static int file_i2c = 0;
 uint8_t ssd1306_init(void)
 {
     file_i2c = open("/dev/i2c-1", O_RDWR);
-        if (ioctl(file_i2c, I2C_SLAVE, 0x3c) < 0) // set slave address
-            {
-                close(file_i2c);
-                file_i2c = 0;
-                return 1;
-            }
+    if (file_i2c < 0)
+        return 1;
+    if (ioctl(file_i2c, I2C_SLAVE, 0x3c) < 0) // set slave address
+        {
+            close(file_i2c);
+            return 1;
+        }
 
     uint8_t cmd[] = {0x00, 0xae, 0xa6, 0xd5, 0x80, 0xa8, 0x3f, 0xd3, 0x00, 0x40, 0x8d, 0x14, 0x20,
         0x02, 0xa0, 0xc0, 0xda, 0x12, 0x81, BRIGHTNESS, 0xd9, 0xf1, 0xdb, 0x40, 0xa4, 0xa6,0xaf, 0x2e};
@@ -62,7 +63,7 @@ void set_brightness(uint8_t brightness)
 {
     uint8_t cmd[] = {0x00, 0x81, brightness};
     if (write(file_i2c, &cmd, sizeof(cmd)) != sizeof(cmd))
-         perror("I2C write failed");
+        perror("I2C write failed");
 }
 
 void load_bmp_1bit(const uint8_t *bmp_data,
