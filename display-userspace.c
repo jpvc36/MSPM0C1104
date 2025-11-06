@@ -54,7 +54,7 @@ void clear(void)
     cmd[0] = 0x40;
     for(int i = 0; i < NUMBER_OF_ROWS; i++) {
         write_pos(32, i);
-        if (write(file_i2c, cmd, sizeof(cmd)) != sizeof(cmd))
+        if (write(file_i2c, &cmd, sizeof(cmd)) != sizeof(cmd))
             perror("I2C write failed");
     }
 }
@@ -101,8 +101,8 @@ void write_data(uint8_t x, uint8_t y, uint8_t *data, int len)
     uint8_t cmd[len + 1];
     cmd[0] = 0x40;
     memcpy(cmd + 1, data, len);
-    write(file_i2c, &cmd, len + 1);
-    if (write(file_i2c, cmd, len + 1) != len + 1)
+ //   write(file_i2c, &cmd, len + 1);
+    if (write(file_i2c, &cmd, len + 1) != len + 1)
         perror("I2C write failed");}
 
 int main(int argc, char **argv)
@@ -128,7 +128,7 @@ int main(int argc, char **argv)
     }
 
     ssd1306_init();
-    clear();
+//    clear();
     if (tens != 0 && num < 100)
         load_bmp_1bit(numbers[tens], data,
             38 - numbers[tens][18], 24 - (numbers[tens][22] / 2));
