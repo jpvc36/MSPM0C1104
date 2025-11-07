@@ -83,6 +83,8 @@ void load_bmp_1bit(const uint8_t *bmp_data,
             int bit_index  = 7 - (x % 8);
             int pixel_on   = (row[byte_index] >> bit_index) & 1;
             if (!pixel_on) {
+//                int col = x + x_offset;
+//                int row_y = y + y_offset;
                 int col = (SCREEN_WIDTH - 1) - (x + x_offset);
                 int row_y = (SCREEN_HEIGHT - 1) - (y + y_offset);
                 int page = row_y / 8;
@@ -94,14 +96,12 @@ void load_bmp_1bit(const uint8_t *bmp_data,
     }
 }
 
-
 void write_data(uint8_t x, uint8_t y, uint8_t *data, int len)
 {
     write_pos(x, y);
     uint8_t cmd[len + 1];
     cmd[0] = 0x40;
     memcpy(cmd + 1, data, len);
- //   write(file_i2c, &cmd, len + 1);
     if (write(file_i2c, &cmd, len + 1) != len + 1)
         perror("I2C write failed");}
 
@@ -128,7 +128,6 @@ int main(int argc, char **argv)
     }
 
     ssd1306_init();
-//    clear();
     if (tens != 0 && num < 100)
         load_bmp_1bit(numbers[tens], data,
             38 - numbers[tens][18], 24 - (numbers[tens][22] / 2));
