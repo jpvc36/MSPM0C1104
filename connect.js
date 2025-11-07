@@ -52,16 +52,6 @@ volumio.on('connect', () => {
 });
 
 volumio.on('pushState', (state) => {
-  const msg = Buffer.from(JSON.stringify({
-    bmp_number: code,
-    brightness: brightness,
-  }));
-
-  const client = dgram.createSocket('unix_dgram');
-  client.send(msg, 0, msg.length, socketPath, () => {
-    client.close();
-  });
-
   const currentVolume = state.volume;
   const currentMute = state.mute;
   const currentStatus = state.status;
@@ -86,7 +76,17 @@ volumio.on('pushState', (state) => {
     lastMute = currentMute;
   }
 
-handleIdleTimer();
+  const msg = Buffer.from(JSON.stringify({
+    bmp_number: code,
+    brightness: brightness,
+  }));
+
+  const client = dgram.createSocket('unix_dgram');
+  client.send(msg, 0, msg.length, socketPath, () => {
+    client.close();
+  });
+
+  handleIdleTimer();
 });
 
 //volumio.on('getState', (state) => {
