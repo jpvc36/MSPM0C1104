@@ -107,31 +107,34 @@ void restart_debounce_timer(struct itimerspec its) {
     }
 }
 
-int open_gpiod_line(uint8_t gpio) {
-    int ret;
+int open_gpiod_line(uint8_t gpio)
+{
+    struct gpiod_line_request_config cfg = {
+        .consumer = "i2c_trigger",
+        .request_type = GPIOD_LINE_REQUEST_EVENT_FALLING_EDGE,
+        .flags = GPIOD_LINE_REQUEST_FLAG_BIAS_PULL_UP				// not for Debian Buster
+    };
 
-    // Open GPIO chip
-    chip = gpiod_chip_open("/dev/gpiochip0");
+    chip = gpiod_chip_open_by_name("gpiochip0");
     if (!chip) {
-        perror("Open chip failed");
+        perror("open chip");
         return 1;
     }
 
-    // Get GPIO line (pin 4)
     line = gpiod_chip_get_line(chip, gpio);
     if (!line) {
-        perror("Get line failed");
+        perror("get line");
         gpiod_chip_close(chip);
         return 1;
     }
 
-    // Request falling edge detection
-    ret = gpiod_line_request_falling_edge_events(line, "i2c_trigger");
+    int ret = gpiod_line_request(line, &cfg, 0);
     if (ret < 0) {
-        perror("Request event failed");
+        perror("request line");
         gpiod_chip_close(chip);
         return 1;
     }
+
     return 0;
 }
 
@@ -445,5 +448,6 @@ cleanup:
 
     return ret;
 }
+
 
 
