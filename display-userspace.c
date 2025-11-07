@@ -103,7 +103,8 @@ void write_data(uint8_t x, uint8_t y, uint8_t *data, int len)
     cmd[0] = 0x40;
     memcpy(cmd + 1, data, len);
     if (write(file_i2c, &cmd, len + 1) != len + 1)
-        perror("I2C write failed");}
+        perror("I2C write failed");
+}
 
 int main(int argc, char **argv)
 {
