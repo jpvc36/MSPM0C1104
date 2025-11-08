@@ -429,6 +429,8 @@ int main(int argc, const char *argv[]) {
                 char* buttoncommand = lookup_command(buttoncode, btn_table, btn_keycount);
                 if ((i2c_data[0] & 0x1f) == 1 && buttoncommand)
                     send_volumio_command((const char*)buttoncommand);
+                else if ((i2c_data[0] & 0x1f) >= 24 && buttoncommand)
+                    system("/sbin/poweroff");
             }
         }
     }
@@ -448,6 +450,7 @@ cleanup:
 
     return ret;
 }
+
 
 
 
