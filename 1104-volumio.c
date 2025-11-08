@@ -112,8 +112,14 @@ int open_gpiod_line(uint8_t gpio)
     struct gpiod_line_request_config cfg = {
         .consumer = "i2c_trigger",
         .request_type = GPIOD_LINE_REQUEST_EVENT_FALLING_EDGE,
-        .flags = GPIOD_LINE_REQUEST_FLAG_BIAS_PULL_UP				// not for Debian Buster
+#ifdef GPIOD_LINE_REQUEST_FLAG_BIAS_PULL_UP
+        .flags = GPIOD_LINE_REQUEST_FLAG_BIAS_PULL_UP
     };
+    printf("libgpiod supports bias flags, using PULL_UP\n");
+#else
+    };
+    printf("libgpiod bias flags not available, using default bias\n");
+#endif
 
     chip = gpiod_chip_open_by_name("gpiochip0");
     if (!chip) {
@@ -450,6 +456,7 @@ cleanup:
 
     return ret;
 }
+
 
 
 
