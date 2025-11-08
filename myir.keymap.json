@@ -111,7 +111,7 @@
   { "scancode": "01000000", "keycode": "BTN_TRIGGER_HAPPY1", "keycommand": "" },
   { "scancode": "00010000", "keycode": "BTN_TRIGGER_HAPPY2", "keycommand": "" },
   { "scancode": "00000100", "keycode": "BTN_TRIGGER_HAPPY3", "keycommand": "" },
-  { "scancode": "00000001", "keycode": "BTN_TRIGGER_HAPPY4", "keycommand": "volume&volume=toggle" },
+  { "scancode": "00000001", "keycode": "BTN_TRIGGER_HAPPY4", "keycommand": "toggle" },
   { "scancode": "02000000", "keycode": "BTN_TRIGGER_HAPPY5", "keycommand": "" },
   { "scancode": "00020000", "keycode": "BTN_TRIGGER_HAPPY6", "keycommand": "" },
   { "scancode": "00000200", "keycode": "BTN_TRIGGER_HAPPY7", "keycommand": "" },
