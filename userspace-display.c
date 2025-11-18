@@ -158,11 +158,13 @@ int write_fb(uint8_t num) {
 
     if (tens != 0 && num < 100)
         load_bmp_1bit(numbers[tens], data,
-            (SCREEN_WIDTH / 2) + 6 - numbers[tens][18],
+//            (SCREEN_WIDTH / 2) + 6 - numbers[tens][18],
+            22 - numbers[tens][18],
             (SCREEN_HEIGHT / 2) - (numbers[tens][22] / 2));
     if (num < 100)
         load_bmp_1bit(numbers[ones], data,
-            (SCREEN_WIDTH / 2) + 12,
+//            (SCREEN_WIDTH / 2) + 12,
+            28,
             (SCREEN_HEIGHT / 2) - numbers[ones][22] / 2);
     else if (num >= 100 && num <= 110)
         load_bmp_1bit(numbers[num - 90], data,
