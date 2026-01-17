@@ -51,7 +51,7 @@ int setup_unix_socket() {
 }
 
 void set_sysfs_brightness(int value) {
-    FILE *f = fopen("/sys/class/backlight/ssd1307fb1/brightness", "w");
+    FILE *f = fopen("/sys/class/backlight/1-003c/brightness", "w");
     if (!f) {
         perror("Failed to open brightness sysfs node");
         return;
@@ -224,5 +224,6 @@ int main(void)
 
     return 0;
 }
+
 
 
