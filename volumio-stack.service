@@ -14,6 +14,9 @@ User=root
 Group=root
 WorkingDirectory=/usr/local/bin
 
+# Run once before starting the stack
+ExecStartPre=/usr/local/bin/start_snapclient.sh
+
 # Launch all three processes; restart whole stack if any one fails
 ExecStart=/bin/sh -c '\
     /usr/bin/node /usr/local/bin/connect.js & \
@@ -30,3 +33,4 @@ Environment=PATH=/usr/local/bin:/usr/bin:/bin
 
 [Install]
 WantedBy=multi-user.target
+
