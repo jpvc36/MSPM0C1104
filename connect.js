@@ -2,7 +2,7 @@
 // npm install socket.io-client@2
 // npm install unix-dgram@2
 
-const Speaker_Left  = "b8:27:eb:d7:4d:c9"
+const Speaker_Left  = "e4:5f:01:50:0b:b0"
 const Speaker_Right = "e4:5f:01:43:f1:27"
 
 const io = require('socket.io-client');
@@ -10,10 +10,51 @@ const dgram = require('unix-dgram');
 const socketPath = '/tmp/volumio.sock';
 const volumio = io.connect('http://localhost:3000');
 const net = require('net');
+
 const PORT = 1705;
 const HOST = 'localhost';
-const client = new net.Socket();
 
+let rpcId = 1;
+let snap = null;
+let rxBuffer = '';
+
+function connectSnapserver() {
+    snap = new net.Socket();
+
+    snap.connect(PORT, HOST, () => {
+        console.log('Connected to Snapserver');
+    });
+
+    snap.on('data', data => {
+        rxBuffer += data.toString();
+
+        const lines = rxBuffer.split('\n');
+        rxBuffer = lines.pop();          // incomplete line
+
+        for (const line of lines) {
+            if (!line.trim()) continue;
+
+            try {
+                const msg = JSON.parse(line);
+                // Uncomment if you want to see every reply:
+                // console.log("Snapserver:", msg);
+            } catch (e) {
+                console.error("Bad JSON:", line);
+            }
+        }
+    });
+
+    snap.on('close', () => {
+        console.log("Snapserver disconnected");
+        setTimeout(connectSnapserver, 2000);
+    });
+
+    snap.on('error', err => {
+        console.error("Snapserver:", err.message);
+    });
+}
+
+connectSnapserver();
 let lastVolume = null;
 let lastMute = null;
 let lastStatus = null;
@@ -54,81 +95,25 @@ function handleIdleTimer() {
   idleTimer = setTimeout(dimDisplay, 5000);
 }
 
-function setSnapserverVolume(muted = false, percent = 43, id, timeoutMs = 1000) {
-    const message = {
-        id: "8",
+function setSnapserverVolume(muted, percent, clientId)
+{
+    if (!snap || snap.destroyed)
+        return;
+
+    const msg = {
         jsonrpc: "2.0",
+        id: rpcId++,
         method: "Client.SetVolume",
         params: {
-            id: id,
+            id: clientId,
             volume: {
-                muted: muted,
-                percent: percent
+                muted,
+                percent
             }
         }
     };
 
-    const client = new net.Socket();
-    const jsonMessage = JSON.stringify(message) + '\n';
-    
-    let responseData = '';
-    let responseTimeout = null;
-
-    // Set timeout for incomplete response
-    const startResponseTimeout = () => {
-        if (responseTimeout) clearTimeout(responseTimeout);
-        responseTimeout = setTimeout(() => {
-            console.error('Response timeout - incomplete JSON after', timeoutMs, 'ms');
-            console.log('Received data:', responseData);
-            client.destroy();
-        }, timeoutMs);
-    };
-
-    client.connect(PORT, HOST, () => {
-        console.log('Connected to Snapserver');
-        client.write(jsonMessage);
-        startResponseTimeout(); // Start timeout after sending request
-    });
-
-    client.on('data', (data) => {
-        responseData += data.toString();
-        
-        // Reset timeout on each data chunk
-        startResponseTimeout();
-        
-        try {
-            const jsonResponse = JSON.parse(responseData);
-            console.log('Server response:', jsonResponse);
-            
-            // Clear timeout since we got valid JSON
-            if (responseTimeout) clearTimeout(responseTimeout);
-            
-            if (jsonResponse.result && jsonResponse.result.volume) {
-                console.log('Volume result:', jsonResponse.result.volume);
-            }
-            
-            client.destroy();
-        } catch (e) {
-            // Wait for more data if JSON is incomplete
-            console.log('Received partial data, waiting for more...');
-        }
-    });
-
-    client.on('close', () => {
-        if (responseTimeout) clearTimeout(responseTimeout);
-        console.log('Connection closed');
-    });
-
-    client.on('error', (err) => {
-        if (responseTimeout) clearTimeout(responseTimeout);
-        console.error('Connection error:', err);
-    });
-
-    // Also timeout the connection itself
-    client.setTimeout(5000, () => {
-        console.error('Socket timeout - no response');
-        client.destroy();
-    });
+    snap.write(JSON.stringify(msg) + "\n");
 }
 
 volumio.on('connect', () => {
@@ -181,4 +166,3 @@ volumio.on('pushState', (state) => {
 //  currentMute = state.mute;
 //  currentStatus = state.status;
 //});
-
