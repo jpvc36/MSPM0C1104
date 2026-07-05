@@ -218,33 +218,33 @@ int main(void)
     signal(SIGINT, handle_signal);
     signal(SIGTERM, handle_signal);
 
-fd_set readfds;
-struct timeval tv;
+    fd_set readfds;
+    struct timeval tv;
 
-while (running) {
-    FD_ZERO(&readfds);
-    FD_SET(sockfd, &readfds);
+    while (running) {
+        FD_ZERO(&readfds);
+        FD_SET(sockfd, &readfds);
 
-    tv.tv_sec = 0;
-    tv.tv_usec = 100000; // 100 ms
+        tv.tv_sec = 0;
+        tv.tv_usec = 100000; // 100 ms
 
-    int ret = select(sockfd + 1, &readfds, NULL, NULL, &tv);
-    if (ret < 0) {
-        if (errno == EINTR) continue;
-        perror("select");
-        break;
-    }
-    if (ret == 0) continue; // timeout
+        int ret = select(sockfd + 1, &readfds, NULL, NULL, &tv);
+        if (ret < 0) {
+            if (errno == EINTR) continue;
+            perror("select");
+            break;
+        }
+        if (ret == 0) continue; // timeout
 
-    if (FD_ISSET(sockfd, &readfds)) {
-        char buf[2048];
-        ssize_t n = read(sockfd, buf, sizeof(buf) - 1);
-        if (n > 0) {
-            buf[n] = '\0';
-            handle_volumio_event(buf);
+        if (FD_ISSET(sockfd, &readfds)) {
+            char buf[2048];
+            ssize_t n = read(sockfd, buf, sizeof(buf) - 1);
+            if (n > 0) {
+                buf[n] = '\0';
+                handle_volumio_event(buf);
+            }
         }
     }
-}
 
     write_fb(111);
     close(file_i2c);
