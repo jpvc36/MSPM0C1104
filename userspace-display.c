@@ -1,4 +1,4 @@
-// sudo apt install gcc libcjson-dev libcurl4-openssl-dev
+// sudo apt install -y gcc libcjson-dev libcurl4-openssl-dev
 // gcc -Wall -Wextra userspace-display.c -o volumio-display -lcjson -lcurl
 
 #include <stdio.h>
@@ -48,8 +48,8 @@ int open_file_i2c(void)
 }
 
 
-int setup_unix_socket() {
-    int sock = socket(AF_UNIX, SOCK_DGRAM, 0);
+int setup_unix_socket(void) {
+    int sock = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sock < 0) {
         perror("socket");
         return -1;
@@ -62,6 +62,12 @@ int setup_unix_socket() {
 
     if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         perror("bind");
+        close(sock);
+        return -1;
+    }
+
+    if (listen(sock, 5) < 0) {
+        perror("listen");
         close(sock);
         return -1;
     }
@@ -104,7 +110,7 @@ void load_bmp_1bit(const uint8_t *bmp_data,
     int row_size = ((width + 31) / 32) * 4;
     const uint8_t *pixel_data = bmp_data + offset;
 
-    for (int y = 0; y < height; y++) {                 // 0 … height-1
+    for (int y = 0; y < height; y++) {                 // 0 â€¦ height-1
         int src_y = height - 1 - y;                    // flip vertically
         const uint8_t *row = pixel_data + src_y * row_size;
         for (int x = 0; x < width; x++) {
@@ -218,13 +224,15 @@ int main(void)
     signal(SIGINT, handle_signal);
     signal(SIGTERM, handle_signal);
 
-    fd_set readfds;
-    struct timeval tv;
+//    fd_set readfds;
+//    struct timeval tv;
 
     while (running) {
+        fd_set readfds;
         FD_ZERO(&readfds);
         FD_SET(sockfd, &readfds);
 
+        struct timeval tv;
         tv.tv_sec = 0;
         tv.tv_usec = 100000; // 100 ms
 
@@ -234,15 +242,28 @@ int main(void)
             perror("select");
             break;
         }
-        if (ret == 0) continue; // timeout
+        if (ret == 0)
+            continue;        // timeout
 
         if (FD_ISSET(sockfd, &readfds)) {
+            int client_fd = accept(sockfd, NULL, NULL);
+
+            if (client_fd < 0) {
+                if (errno == EINTR)
+                    continue;
+
+                perror("accept");
+                break;
+            }
+
             char buf[2048];
-            ssize_t n = read(sockfd, buf, sizeof(buf) - 1);
+            ssize_t n = read(client_fd, buf, sizeof(buf) - 1);
             if (n > 0) {
                 buf[n] = '\0';
                 handle_volumio_event(buf);
             }
+
+            close(client_fd);
         }
     }
 
