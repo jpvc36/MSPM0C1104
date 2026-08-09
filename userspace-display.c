@@ -110,7 +110,7 @@ void load_bmp_1bit(const uint8_t *bmp_data,
     int row_size = ((width + 31) / 32) * 4;
     const uint8_t *pixel_data = bmp_data + offset;
 
-    for (int y = 0; y < height; y++) {                 // 0 â€¦ height-1
+    for (int y = 0; y < height; y++) {                 // height-1
         int src_y = height - 1 - y;                    // flip vertically
         const uint8_t *row = pixel_data + src_y * row_size;
         for (int x = 0; x < width; x++) {
@@ -223,9 +223,6 @@ int main(void)
 
     signal(SIGINT, handle_signal);
     signal(SIGTERM, handle_signal);
-
-//    fd_set readfds;
-//    struct timeval tv;
 
     while (running) {
         fd_set readfds;
