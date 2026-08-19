@@ -1,4 +1,4 @@
-#!/bin/bash
+#!bin/bash
 # sudo apt install -y netcat-openbsd socat
 # /etc/default/snapclient2: SNAPCLIENT_OPTS="--sampleformat 48000:24:* -s14 -hCD-player"
 
