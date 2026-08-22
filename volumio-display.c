@@ -1,5 +1,5 @@
 // sudo apt install -y gcc libcjson-dev libcurl4-openssl-dev
-// gcc -Wall -Wextra userspace-display.c -o volumio-display -lcjson -lcurl
+// gcc -Wall -Wextra volumio-display.c -o volumio-display -lcjson -lcurl
 
 #include <stdio.h>
 #include <stdlib.h>
