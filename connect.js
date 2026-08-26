@@ -245,7 +245,7 @@ function connectCDplayer() {
 
                 const status =
                     message.params?.stream?.status ??
-                    message.result?.server?.streams?.[0]?.status;
+                    message.result?.server?.streams[0]?.status;
 
                 handleCDstatus(status);
 
