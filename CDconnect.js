@@ -67,7 +67,7 @@ function connectVolumio() {
 }
 
 function handleVolumioStatus() {
-    console.log(lastVolume, lastMute, lastVolumioStatus);
+    console.log( 'Volumio:', lastVolumioStatus + ', volume:', lastVolume + (lastMute ? ', muted' : ', unmuted'));
     if (volumeChanged) displayCode['liveDisplay'] = lastVolume;
     if (lastMute) displayCode['liveDisplay'] = displayCode['mute'];
     if (statusChanged) {
