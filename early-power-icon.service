@@ -1,0 +1,17 @@
+[Unit]
+Description=Send Early Power Icon to Display
+DefaultDependencies=no
+Conflicts=shutdown.target
+After=systemd-modules-load.service local-fs.target
+Before=sysinit.target shutdown.target
+
+[Service]
+Type=oneshot
+# Wait for the I2C driver to be ready
+ExecStartPre=/bin/sh -c 'while [ ! -e /dev/i2c-* ]; do sleep 0.05; done'
+# Run your dedicated icon-sending binary
+ExecStart=/usr/local/bin/showPowerIcon
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target
