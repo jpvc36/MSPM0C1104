@@ -257,7 +257,8 @@ function handleCDstatus(status) {
         console.log('CD status :\t idle');
         stopCDsnapclient();
     }
-    displayCode['dimmedDisplay'] = displayCode['liveDisplay'];
+    if (lastVolumioStatus !== 'play')
+        displayCode['dimmedDisplay'] = displayCode['liveDisplay'];
     sendToDisplay(displayCode['liveDisplay'], 159);
     handleIdleTimer();
 }
