@@ -264,7 +264,7 @@ int main(void)
         }
     }
 
-    write_fb(111);
+    write_fb(108);
     close(file_i2c);
     close(sockfd);
     printf("\nClean exit.\n");
