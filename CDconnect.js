@@ -162,10 +162,14 @@ function connectCDplayer() {
     socket.on('connect', () => {
         cdConnecting = false;
         console.log('Connected to CD-player');
-        rpcId++;
-        socket.write(
-            '{"id":rpcId,"jsonrpc":"2.0","method":"Server.GetStatus"}\n'
-        );
+
+        const message = {
+            id: rpcId++,
+            jsonrpc: "2.0",
+            method: "Server.GetStatus"
+        };
+
+        socket.write(JSON.stringify(message) + '\n');
     });
 
     socket.on('data', data => {
@@ -250,11 +254,11 @@ function handleCDstatus(status) {
 
     if (status === 'playing') {
         displayCode['liveDisplay'] = displayCode['cd'];
-        console.log('CD status :\t playing');
+        console.log('CD status: playing');
         startCD();
     } else if (status === 'idle') {
         displayCode['liveDisplay'] = displayCode['pause'];
-        console.log('CD status :\t idle');
+        console.log('CD status: idle');
         stopCDsnapclient();
     }
     if (lastVolumioStatus !== 'play')
