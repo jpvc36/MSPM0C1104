@@ -140,9 +140,9 @@ function handleVolumioState(state) {
 
     console.log(
         'Volumio:',
-        lastVolumioStatus,
+        lastVolumioStatus +
         ', CD:',
-        cdStatus,
+        cdStatus +
         ', volume:',
         lastVolume,
         lastMute ? 'muted' : 'unmuted');
