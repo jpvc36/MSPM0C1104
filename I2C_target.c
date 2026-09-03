@@ -96,7 +96,7 @@ void QEI_0_INST_IRQHandler(void)
 }
 
 void GPIOA_IRQHandler(void) {
-    gData[0] |= 0x80;
+    gData[0] |= 0x81;
     gData[7] |= 0x01;
     DL_GPIO_enableOutput(GPIO_LEDS_PORT, GPIO_LEDS_IRQ_PIN);
     NVIC_DisableIRQ(GPIO_BUTTONS_INT_IRQN);
