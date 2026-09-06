@@ -209,7 +209,8 @@ function startCdSnapclient() {
         '-i', '2',
         '--sampleformat', '48000:24:*',
         '--player', 'file:filename=/tmp/snapfifo',
-        'tcp://CD-player'
+//        'tcp://CD-player'                           // from snapclient v0.30.0
+        '-h', 'CD-player'
     ]);
 
     console.log(
