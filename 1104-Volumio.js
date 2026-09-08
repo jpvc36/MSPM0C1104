@@ -173,7 +173,7 @@ function handleScancode(data) {
         }
     }
 
-    entry = table.find(row => row.scancode === scancode);
+    entry = table.find(row => row.scancode == scancode);
 
     if (scancode && !entry) {
         console.log(`Unknown scancode: 0x${scancode.toString(16)}`);
