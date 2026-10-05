@@ -18,7 +18,7 @@ fi
 # On command key down or keep pressed
 if [[ ! "$INPUT" =~ ^[0-9]$ ]]; then
 
-    curl "http://$VOLUMIO_IP:3000/api/v1/commands/?cmd=$INPUT"
+    curl s "http://$VOLUMIO_IP/api/v1/commands/?cmd=$INPUT"
 
     curl -s "http://$VOLUMIO_IP/api/v1/getState" | jq 'if .mute == true then 104 else .volume end' | /root/a.out
 
@@ -33,7 +33,7 @@ if [[ "$VALUE" = "keep" && "$INPUT" =~ ^[0-9]$ ]]; then
     # Start the new playlist at number 1
     echo "Long press: changing playlist"
 
-    curl "http://$VOLUMIO_IP:3000/api/v1/commands/?cmd=playplaylist&name=IR_$INPUT"
+    curl -s "http://$VOLUMIO_IP/api/v1/commands/?cmd=playplaylist&name=IR_$INPUT"
 
     exit 0
 fi
@@ -64,6 +64,6 @@ fi
 
         NUMBER=$((NUMBER - 1))
 
-        curl "http://$VOLUMIO_IP:3000/api/v1/commands/?cmd=play&N=$NUMBER"
+        curl -s "http://$VOLUMIO_IP/api/v1/commands/?cmd=play&N=$NUMBER"
     fi
 ) &
