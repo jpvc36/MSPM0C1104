@@ -27,14 +27,7 @@ fi
 
 # Long press number key
 if [[ "$VALUE" = "keep" && "$INPUT" =~ ^[0-9]$ ]]; then
-/*
-    # Cancel pending number entry
-    if [ -f "$PIDFILE" ]; then
-        OLD_PID=$(cat "$PIDFILE")
-        kill "$OLD_PID" 2>/dev/null
-        rm -f "$PIDFILE"
-    fi
-*/
+
     rm -f "$NUMBERFILE"
 
     # Start the new playlist at number 1
@@ -58,14 +51,8 @@ else
         echo -n "${NUMBER}${INPUT}" > "$NUMBERFILE"
     fi
 fi
-/*
+
 # Restart timeout
-if [ -f "$PIDFILE" ]; then
-    OLD_PID=$(cat "$PIDFILE")
-    kill "$OLD_PID" 2>/dev/null
-    rm -f "$PIDFILE"
-fi
-*/
 (
     echo $$ > "$PIDFILE"
     sleep "$TIMEOUT"
